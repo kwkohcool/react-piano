@@ -1,26 +1,39 @@
-// Implementing Provider pattern using hooks only
+/* Implementing Provider pattern using Render Props component -
+ ** Method 1: using a functional component
+ */
 
-import { useRef, useState } from 'react';
+import {
+    FunctionComponent,
+    ReactElement,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 import Soundfont, { InstrumentName, Player } from 'soundfont-player';
 import { MidiValue } from '../../domain/note';
 import { AudioNodesRegistry, DEFAULT_INSTRUMENT } from '../../domain/sound';
 import { Optional } from '../../domain/types';
 
-interface Settings {
-    AudioContext: AudioContextType;
-}
-
-interface Adapted {
+interface ProvidedProps {
     loading: boolean;
-    current: Optional<InstrumentName>;
-
-    load(instrument?: InstrumentName): Promise<void>;
     play(note: MidiValue): Promise<void>;
     stop(note: MidiValue): Promise<void>;
 }
 
-export function useSoundfont({ AudioContext }: Settings): Adapted {
+interface ProviderProps {
+    instrument?: InstrumentName;
+    AudioContext: AudioContextType;
+    render(props: ProvidedProps): ReactElement;
+}
+
+export const SoundfontProvider: FunctionComponent<ProviderProps> = ({
+    AudioContext,
+    instrument,
+    render,
+}) => {
     let activeNodes: AudioNodesRegistry = {};
+
     const [current, setCurrent] = useState<Optional<InstrumentName>>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [player, setPlayer] = useState<Optional<Player>>(null);
@@ -34,6 +47,12 @@ export function useSoundfont({ AudioContext }: Settings): Adapted {
         setCurrent(instrument);
         setPlayer(player);
     }
+
+    const loadInstrument = useCallback(() => load(instrument), [instrument]);
+
+    useEffect(() => {
+        if (!loading && instrument !== current) loadInstrument();
+    }, [loadInstrument, loading, instrument, current]);
 
     async function resume() {
         return audio.current.state === 'suspended'
@@ -57,14 +76,11 @@ export function useSoundfont({ AudioContext }: Settings): Adapted {
         activeNodes = { ...activeNodes, [note]: null };
     }
 
-    return {
+    return render({
         loading,
-        current,
-
-        load,
         play,
         stop,
-    };
-}
+    });
+};
 
-export default useSoundfont;
+export default SoundfontProvider;
