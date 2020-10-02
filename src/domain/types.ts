@@ -1,1 +1,1 @@
-export type Optional<TEntity> = TEntity | null
+export type Optional<TEntity> = TEntity | null;

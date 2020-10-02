@@ -10,3 +10,5 @@ export const NoAudioMessage: FunctionComponent = () => {
         </div>
     );
 };
+
+export default NoAudioMessage;

@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
-import { InstrumentName } from 'soundfont-player';
-import { resolveModuleName } from 'typescript';
+import Soundfont, { InstrumentName, Player } from 'soundfont-player';
 import { MidiValue } from '../../domain/note';
 import { AudioNodesRegistry, DEFAULT_INSTRUMENT } from '../../domain/sound';
 import { Optional } from '../../domain/types';
@@ -55,6 +54,15 @@ export function useSoundfont({ AudioContext }: Settings): Adapted {
         activeNodes[note]!.stop();
         activeNodes = { ...activeNodes, [note]: null };
     }
+
+    return {
+        loading,
+        current,
+
+        load,
+        play,
+        stop,
+    };
 }
 
 export default useSoundfont;
