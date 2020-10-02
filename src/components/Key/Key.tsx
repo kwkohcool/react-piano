@@ -1,8 +1,8 @@
 import React, { FunctionComponent, ReactEventHandler } from 'react';
 import clsx from 'clsx';
 import { NoteType } from '../../domain/note';
+import { usePressObserver } from '../PressObserver/usePressObserver';
 import './style.css';
-import usePressObserver from '../PressObserver/usePressObserver';
 
 interface KeyProps {
     type: NoteType;
